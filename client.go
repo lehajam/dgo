@@ -18,12 +18,15 @@ package dgo
 
 import (
 	"context"
+	"encoding/json"
 	"math/rand"
+	"reflect"
 	"sync"
 
 	"github.com/dgraph-io/dgo/protos/api"
 	"github.com/dgraph-io/dgo/y"
 	"github.com/gogo/protobuf/proto"
+	"github.com/mitchellh/mapstructure"
 )
 
 // Dgraph is a transaction aware client to a set of dgraph server instances.
@@ -92,4 +95,38 @@ func DeleteEdges(mu *api.Mutation, uid string, predicates ...string) {
 			ObjectValue: &api.Value{&api.Value_DefaultVal{"_STAR_ALL"}},
 		})
 	}
+}
+
+// Unmarshal decodes the content of a dgraph response into a struct
+// Dgraph returns any embedded struct in the response as a json array
+// When that's the case, we use a hook to convert the json array back into a struct
+func Unmarshal(data []byte, obj interface{}) error {
+	var parsed map[string]interface{}
+	err := json.Unmarshal(data, &parsed)
+	if err != nil {
+		return err
+	}
+
+	decoder, err := mapstructure.NewDecoder(
+		&mapstructure.DecoderConfig{
+			Result: &obj,
+			DecodeHook: func(from reflect.Kind, to reflect.Kind, data interface{}) (interface{}, error) {
+				if from == reflect.Slice && to == reflect.Struct {
+					slice := data.([]interface{})
+					if len(slice) > 0 {
+						return slice[0], nil
+					}
+				}
+				return data, nil
+			},
+		})
+	if err != nil {
+		return err
+	}
+
+	if err := decoder.Decode(parsed); err != nil {
+		return err
+	}
+
+	return nil
 }
