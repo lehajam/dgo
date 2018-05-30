@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-//go:generate efaceconv
-//ec::[]interface{}:SLice
-//ec::[]interface{}:SLice
-
 package dgo_test
 
 import (

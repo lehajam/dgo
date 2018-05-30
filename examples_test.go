@@ -27,9 +27,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dgraph-io/dgo"
-	"github.com/dgraph-io/dgo/protos/api"
 	"github.com/dgraph-io/dgo/x"
+	"github.com/lehajam/dgo"
+	"github.com/lehajam/dgo/protos/api"
 	"google.golang.org/grpc"
 )
 
