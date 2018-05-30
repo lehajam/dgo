@@ -21,7 +21,7 @@ package y
 import (
 	"errors"
 
-	"github.com/dgraph-io/dgo/protos/api"
+	"github.com/lehajam/dgo/protos/api"
 )
 
 var (
